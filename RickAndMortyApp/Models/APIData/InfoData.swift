@@ -3,8 +3,8 @@ import Foundation
 struct InfoData {
     let count: Int
     let pages: Int
-    let next: URL?
-    let prev: URL?
+    let next: String?
+    let prev: String?
 }
 
 // MARK: - Decodable protocol

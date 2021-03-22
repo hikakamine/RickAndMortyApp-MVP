@@ -1,6 +1,6 @@
 import Foundation
 
-protocol CharactersListPresenterProtocol {
+protocol CharactersListPresenterProtocol: AnyObject {
 
     func downloadCharacters(filteredByName name: String)
 }

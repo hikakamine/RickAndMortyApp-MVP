@@ -2,7 +2,7 @@ import Foundation
 
 struct LinkData {
     let name: String
-    let url: URL?
+    let url: String?
 }
 
 // MARK: - Decodable protocol

@@ -9,10 +9,10 @@ struct CharacterData {
     let gender: String
     let origin: LinkData
     let location: LinkData
-    let image: URL
-    let episode: [URL]
-    let url: URL
-    let created: Date?
+    let image: String
+    let episodes: [String]
+    let url: String
+    let created: String
 }
 
 // MARK: - Decodable protocol
@@ -28,7 +28,7 @@ extension CharacterData: Decodable {
         case origin = "origin"
         case location = "location"
         case image = "image"
-        case episode = "episode"
+        case episodes = "episode"
         case url = "url"
         case created = "created"
     }

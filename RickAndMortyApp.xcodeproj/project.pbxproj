@@ -65,6 +65,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7D4C352E2608D87C00B714BA /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				7DB5C3B82608008C008062F3 /* LayoutConstants.swift */,
+				7DB5C38C2606CAA7008062F3 /* ErrorMessage.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		7D4C35302608D88800B714BA /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				7DB5C3A126079812008062F3 /* UIColorExtension.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		7D5579352606344B00CF5C7A = {
 			isa = PBXGroup;
 			children = (
@@ -89,9 +106,8 @@
 				7DB6D0AA2606C54300F704C7 /* Views */,
 				7DB6D0AB2606C54C00F704C7 /* Presenters */,
 				7DB6D0AC2606C55500F704C7 /* Services */,
-				7DB5C38C2606CAA7008062F3 /* ErrorMessage.swift */,
-				7DB5C3A126079812008062F3 /* UIColorExtension.swift */,
-				7DB5C3B82608008C008062F3 /* LayoutConstants.swift */,
+				7D4C352E2608D87C00B714BA /* Common */,
+				7D4C35302608D88800B714BA /* Extensions */,
 			);
 			path = RickAndMortyApp;
 			sourceTree = "<group>";

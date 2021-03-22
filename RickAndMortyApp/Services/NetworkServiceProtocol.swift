@@ -2,16 +2,13 @@ import UIKit
 
 protocol NetworkServiceProtocol {
 
-    func downloadResult<T: Decodable>(fromURL url: URL,
-                                      completionHandler: @escaping (Result<T, ErrorMessage>) -> Void)
-
-    func downloadImage(fromURL url: URL,
-                       completionHandler: @escaping (Result<UIImage, ErrorMessage>) -> Void)
+    func downloadCharacters(fromURL url: URL,
+                            completionHandler: @escaping (Result<ResultData<CharacterData>, ErrorMessage>) -> Void)
 }
 
 extension NetworkServiceProtocol {
 
-    func downloadData(forURL url: URL,
+    func downloadData(fromURL url: URL,
                       completionHandler: @escaping (Result<Data, ErrorMessage>) -> Void) {
         let urlSession = URLSession(configuration: .default)
         let dataTask = urlSession.dataTask(with: url) { (data, response, error) in

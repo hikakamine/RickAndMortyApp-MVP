@@ -5,7 +5,7 @@ struct LocationData {
     let name: String
     let type: String
     let dimension: String
-    let residents: [URL]
+    let residents: [String]
 }
 
 // MARK: - Decodable protocol

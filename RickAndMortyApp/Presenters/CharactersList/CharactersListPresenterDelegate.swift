@@ -1,5 +1,7 @@
 import Foundation
 
-protocol CharactersListPresenterDelegate {
+protocol CharactersListPresenterDelegate: AnyObject {
 
+    func presentCharacters(charactersList: [Character])
+    func presentErrorMessage(message: String)
 }

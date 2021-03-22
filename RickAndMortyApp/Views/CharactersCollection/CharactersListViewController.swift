@@ -1,40 +1,39 @@
 import UIKit
 
+// MARK: - UIViewController
 class CharactersListViewController: UIViewController {
 
     private let reuseIdentifier = "CharacterViewCell"
 
-    private let sectionInsets = UIEdgeInsets(top: 16,
-                                             left: 16,
-                                             bottom: 16,
-                                             right: 16)
+    private let sectionInsets = LayoutConstants.sectionInsets
 
     private var itemsPerRow: CGFloat { get { LayoutConstants.itemsPerRow } }
 
-    private lazy var charactersList: [Character] = {
-        var list = [Character]()
-        for id in 1 ... 20 {
-            list.append(Character(id: id,
-                                  name: "Rick \(id)",
-                                  status: "Alive",
-                                  species: "Human",
-                                  type: "Human",
-                                  gender: "Male",
-                                  origin: "Earth",
-                                  location: "Earth",
-                                  image: UIImage(named: "Rick")))
-        }
-        return list
-    }()
+    private var collectionView: UICollectionView!
 
-    var collectionView: UICollectionView!
+    private var presenter: CharactersListPresenterProtocol!
+
+    private var charactersList = [Character]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        settupCollectionView()
+        setupCollectionView()
+        setupPresenter()
     }
 
-    private func settupCollectionView() {
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        presenter.downloadCharacters(filteredByName: "")
+    }
+
+    override func viewWillTransition(to size: CGSize,
+                                     with coordinator: UIViewControllerTransitionCoordinator) {
+        collectionView.frame.size = size
+        collectionView.collectionViewLayout.invalidateLayout()
+        super.viewWillTransition(to: size, with: coordinator)
+    }
+
+    private func setupCollectionView() {
         collectionView = UICollectionView(frame: view.frame,
                                           collectionViewLayout: UICollectionViewFlowLayout())
         collectionView.backgroundColor = .backgroundColor
@@ -45,14 +44,13 @@ class CharactersListViewController: UIViewController {
         view.addSubview(collectionView)
     }
 
-    override func viewWillTransition(to size: CGSize,
-                                     with coordinator: UIViewControllerTransitionCoordinator) {
-        collectionView.frame.size = size
-        collectionView.collectionViewLayout.invalidateLayout()
-        super.viewWillTransition(to: size, with: coordinator)
+    private func setupPresenter() {
+        presenter = CharactersListPresenter(networkService: RickAndMortyAPI(),
+                                            presenterDelegate: self)
     }
 }
 
+// MARK: - UICollectionViewDataSource
 extension CharactersListViewController: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView,
@@ -72,6 +70,7 @@ extension CharactersListViewController: UICollectionViewDataSource {
     }
 }
 
+// MARK: - UICollectionViewDelegate
 extension CharactersListViewController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView,
@@ -80,6 +79,7 @@ extension CharactersListViewController: UICollectionViewDelegate {
     }
 }
 
+// MARK: - UICollectionViewDelegateFlowLayout
 extension CharactersListViewController: UICollectionViewDelegateFlowLayout {
 
     func collectionView(_ collectionView: UICollectionView,
@@ -105,10 +105,28 @@ extension CharactersListViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
+// MARK: - CharactersListPresenterDelegate
 extension CharactersListViewController: CharactersListPresenterDelegate {
 
     func presentCharacters(charactersList: [Character]) {
-        self.charactersList = charactersList
-        self.collectionView.reloadData()
+        DispatchQueue.main.async {
+            self.charactersList = charactersList
+            self.collectionView.reloadData()
+        }
+    }
+
+    func presentErrorMessage(message: String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: "Error",
+                                          message: message,
+                                          preferredStyle: .alert)
+            let alertAction = UIAlertAction(title: "OK",
+                                            style: .cancel,
+                                            handler: nil)
+            alert.addAction(alertAction)
+            self.present(alert,
+                         animated: true,
+                         completion: nil)
+        }
     }
 }

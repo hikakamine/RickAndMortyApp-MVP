@@ -4,8 +4,8 @@ struct EpisodeData {
     let id: Int
     let name: String
     let airDate: String
-    let episode: String
-    let characters: [URL]
+    let episodeCode: String
+    let characters: [String]
 }
 
 // MARK: - Decodable protocol
@@ -15,7 +15,7 @@ extension EpisodeData: Decodable {
         case id = "id"
         case name = "name"
         case airDate = "air_date"
-        case episode = "episode"
+        case episodeCode = "episode"
         case characters = "characters"
     }
 }

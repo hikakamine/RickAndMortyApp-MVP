@@ -1,27 +1,22 @@
 import UIKit
 
-class RickAndMortyAPI: NetworkServiceProtocol {
+class RickAndMortyAPI {
 
-    func downloadResult<T: Decodable>(fromURL url: URL,
-                                      completionHandler: @escaping (Result<T, ErrorMessage>) -> Void) {
-        downloadData(forURL: url) { result in
-            switch result {
-                case .failure(let error):
-                    completionHandler(.failure(error))
-                case .success(let data):
-                    completionHandler(decode(data: data, asType: T.self))
-            }
-        }
-    }
+    let apiURL = URL(string: "https://rickandmortyapi.com/api")!
 
-    func downloadImage(fromURL url: URL,
-                       completionHandler: @escaping (Result<UIImage, ErrorMessage>) -> Void) {
-        downloadData(forURL: url) { result in
+}
+
+extension RickAndMortyAPI: NetworkServiceProtocol {
+
+    func downloadCharacters(fromURL url: URL,
+                            completionHandler: @escaping (Result<ResultData<CharacterData>, ErrorMessage>) -> Void) {
+        downloadData(fromURL: url) { result in
             switch result {
             case .failure(let error):
                 completionHandler(.failure(error))
             case .success(let data):
-                completionHandler(decode(data: data))
+                completionHandler(decode(data: data,
+                                         asType: ResultData<CharacterData>.self))
             }
         }
     }
@@ -33,12 +28,4 @@ private func decode<T: Decodable>(data: Data, asType type: T.Type) -> Result<T, 
     } catch {
         return .failure(ErrorMessage(message: "Data parsing to type[\(type)] error"))
     }
-}
-
-private func decode(data: Data) -> Result<UIImage, ErrorMessage> {
-    guard let image = UIImage(data: data) else {
-        return .failure(ErrorMessage(message: "Image data is corrupted"))
-    }
-
-    return .success(image)
 }
