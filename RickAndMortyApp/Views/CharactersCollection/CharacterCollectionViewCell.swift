@@ -6,7 +6,7 @@ class CharacterCollectionViewCell: UICollectionViewCell {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 8.0
+        imageView.layer.cornerRadius = LayoutConstants.cornerRadius
         imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         imageView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(imageView)
@@ -27,7 +27,6 @@ class CharacterCollectionViewCell: UICollectionViewCell {
         label.textColor = .titleColor
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 16)
-        label.numberOfLines = 2
         addSubview(label)
         return label
     }()
@@ -55,7 +54,7 @@ class CharacterCollectionViewCell: UICollectionViewCell {
     private func setupCharacterStatusConstraints() {
         NSLayoutConstraint.activate([
             characterStatusLabel.topAnchor.constraint(equalTo: characterImageView.bottomAnchor,
-                                                      constant: 2),
+                                                      constant: 3),
             characterStatusLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor,
                                                           constant: 8),
             characterStatusLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor,
@@ -68,7 +67,7 @@ class CharacterCollectionViewCell: UICollectionViewCell {
             characterNameLabel.topAnchor.constraint(equalTo: characterStatusLabel.bottomAnchor,
                                                     constant: 2),
             characterNameLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor,
-                                                       constant: -2),
+                                                       constant: -3),
             characterNameLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor,
                                                         constant: 8),
             characterNameLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor,
@@ -79,6 +78,6 @@ class CharacterCollectionViewCell: UICollectionViewCell {
     private func setupLayer() {
         layer.borderColor = UIColor.gray.cgColor
         layer.borderWidth = 1.0
-        layer.cornerRadius = 8.0
+        layer.cornerRadius = LayoutConstants.cornerRadius
     }
 }

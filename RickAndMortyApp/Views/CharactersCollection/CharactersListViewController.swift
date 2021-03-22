@@ -4,18 +4,18 @@ class CharactersListViewController: UIViewController {
 
     private let reuseIdentifier = "CharacterViewCell"
 
-    private let itemsPerRow: CGFloat = 2
-
     private let sectionInsets = UIEdgeInsets(top: 16,
                                              left: 16,
                                              bottom: 16,
                                              right: 16)
 
+    private var itemsPerRow: CGFloat { get { LayoutConstants.itemsPerRow } }
+
     private lazy var charactersList: [Character] = {
         var list = [Character]()
-        for id in 0 ..< 20 {
+        for id in 1 ... 20 {
             list.append(Character(id: id,
-                                  name: "Rick",
+                                  name: "Rick \(id)",
                                   status: "Alive",
                                   species: "Human",
                                   type: "Human",
@@ -31,7 +31,6 @@ class CharactersListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         settupCollectionView()
     }
 
@@ -44,6 +43,13 @@ class CharactersListViewController: UIViewController {
         collectionView.register(CharacterCollectionViewCell.self,
                                 forCellWithReuseIdentifier: reuseIdentifier)
         view.addSubview(collectionView)
+    }
+
+    override func viewWillTransition(to size: CGSize,
+                                     with coordinator: UIViewControllerTransitionCoordinator) {
+        collectionView.frame.size = size
+        collectionView.collectionViewLayout.invalidateLayout()
+        super.viewWillTransition(to: size, with: coordinator)
     }
 }
 
@@ -96,5 +102,13 @@ extension CharactersListViewController: UICollectionViewDelegateFlowLayout {
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return sectionInsets.left
+    }
+}
+
+extension CharactersListViewController: CharactersListPresenterDelegate {
+
+    func presentCharacters(charactersList: [Character]) {
+        self.charactersList = charactersList
+        self.collectionView.reloadData()
     }
 }
