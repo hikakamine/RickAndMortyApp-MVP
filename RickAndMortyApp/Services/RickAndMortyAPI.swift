@@ -1,12 +1,6 @@
-import UIKit
+import Foundation
 
-class RickAndMortyAPI {
-
-    let apiURL = URL(string: "https://rickandmortyapi.com/api")!
-
-}
-
-extension RickAndMortyAPI: NetworkServiceProtocol {
+class RickAndMortyAPI: NetworkServiceProtocol {
 
     func downloadCharacters(fromURL url: URL,
                             completionHandler: @escaping (Result<ResultData<CharacterData>, ErrorMessage>) -> Void) {
@@ -22,7 +16,8 @@ extension RickAndMortyAPI: NetworkServiceProtocol {
     }
 }
 
-private func decode<T: Decodable>(data: Data, asType type: T.Type) -> Result<T, ErrorMessage> {
+private func decode<T: Decodable>(data: Data,
+                                  asType type: T.Type) -> Result<T, ErrorMessage> {
     do {
         return .success(try JSONDecoder().decode(type, from: data))
     } catch {

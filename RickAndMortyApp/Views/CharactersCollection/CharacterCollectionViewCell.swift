@@ -2,6 +2,8 @@ import UIKit
 
 class CharacterCollectionViewCell: UICollectionViewCell {
 
+    // MARK: Properties
+
     lazy var characterImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFit
@@ -14,22 +16,19 @@ class CharacterCollectionViewCell: UICollectionViewCell {
     }()
 
     lazy var characterStatusLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .subtitleColor
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: 8)
+        let label = UILabel.newLabel(fontSize: 8,
+                                     fontColor: .subtitleColor)
         addSubview(label)
         return label
     }()
 
     lazy var characterNameLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .titleColor
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: 16)
+        let label = UILabel.newLabel()
         addSubview(label)
         return label
     }()
+
+    // MARK: View Life Cycle
 
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -37,7 +36,14 @@ class CharacterCollectionViewCell: UICollectionViewCell {
         setupLayer()
     }
 
-    // MARK: Private methods
+    override func prepareForReuse() {
+        super.prepareForReuse()
+    }
+}
+
+// MARK: Layout setup
+extension CharacterCollectionViewCell {
+
     private func setupConstraints() {
         setupCharacterNameConstraints()
         setupCharacterStatusConstraints()
@@ -54,7 +60,7 @@ class CharacterCollectionViewCell: UICollectionViewCell {
     private func setupCharacterStatusConstraints() {
         NSLayoutConstraint.activate([
             characterStatusLabel.topAnchor.constraint(equalTo: characterImageView.bottomAnchor,
-                                                      constant: 3),
+                                                      constant: 2),
             characterStatusLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor,
                                                           constant: 8),
             characterStatusLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor,
@@ -67,7 +73,7 @@ class CharacterCollectionViewCell: UICollectionViewCell {
             characterNameLabel.topAnchor.constraint(equalTo: characterStatusLabel.bottomAnchor,
                                                     constant: 2),
             characterNameLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor,
-                                                       constant: -3),
+                                                       constant: -4),
             characterNameLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor,
                                                         constant: 8),
             characterNameLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor,
@@ -79,5 +85,20 @@ class CharacterCollectionViewCell: UICollectionViewCell {
         layer.borderColor = UIColor.gray.cgColor
         layer.borderWidth = 1.0
         layer.cornerRadius = LayoutConstants.cornerRadius
+    }
+}
+
+// MARK: - CharacterCollectionCellPresenterDelegate
+extension CharacterCollectionViewCell: CharacterCollectionCellDelegate {
+
+    func setCharacterData(withData character: CharacterData) {
+        characterStatusLabel.text = character.status
+        characterNameLabel.text = character.name
+    }
+
+    func setCharacterImage(fromData data: Data) {
+        DispatchQueue.main.async {
+            self.characterImageView.image = UIImage(data: data)
+        }
     }
 }

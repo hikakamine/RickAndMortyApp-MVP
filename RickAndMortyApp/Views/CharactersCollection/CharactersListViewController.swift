@@ -1,7 +1,8 @@
 import UIKit
 
-// MARK: - UIViewController
 class CharactersListViewController: UIViewController {
+
+    // MARK: Properties
 
     private let reuseIdentifier = "CharacterViewCell"
 
@@ -13,17 +14,19 @@ class CharactersListViewController: UIViewController {
 
     private var presenter: CharactersListPresenterProtocol!
 
-    private var charactersList = [Character]()
+    // MARK: View Life Cycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigationBar()
+        setupFilterButton()
         setupCollectionView()
         setupPresenter()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        presenter.downloadCharacters(filteredByName: "")
+        presenter.downloadCharacters()
     }
 
     override func viewWillTransition(to size: CGSize,
@@ -31,6 +34,21 @@ class CharactersListViewController: UIViewController {
         collectionView.frame.size = size
         collectionView.collectionViewLayout.invalidateLayout()
         super.viewWillTransition(to: size, with: coordinator)
+    }
+}
+
+// MARK: - Layout setup
+extension CharactersListViewController {
+
+    private func setupNavigationBar() {
+        title = "Characters"
+    }
+
+    private func setupFilterButton() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Filter",
+                                                            style: .plain,
+                                                            target: self,
+                                                            action: #selector(filterButtonPressed))
     }
 
     private func setupCollectionView() {
@@ -50,22 +68,33 @@ class CharactersListViewController: UIViewController {
     }
 }
 
+// MARK: - Actions
+extension CharactersListViewController {
+
+    @objc private func filterButtonPressed() {
+        let characterFilterViewController = CharacterFilterViewController()
+        characterFilterViewController.parentPresenter = presenter as! CharactersListPresenter
+        let navigationCharacterFilterController = UINavigationController(rootViewController: characterFilterViewController)
+        navigationCharacterFilterController.modalPresentationStyle = .fullScreen
+        present(navigationCharacterFilterController,
+                animated: true)
+    }
+}
+
 // MARK: - UICollectionViewDataSource
 extension CharactersListViewController: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView,
                         numberOfItemsInSection section: Int) -> Int {
-        return charactersList.count
+        return presenter.charactersCount
     }
 
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier,
                                                       for: indexPath) as! CharacterCollectionViewCell
-        let character = charactersList[indexPath.row]
-        cell.characterImageView.image = character.image
-        cell.characterStatusLabel.text = character.status
-        cell.characterNameLabel.text = character.name
+        presenter.setCharacterCell(withCellDelegate: cell,
+                                   characterAtRow: indexPath.row)
         return cell
     }
 }
@@ -108,9 +137,8 @@ extension CharactersListViewController: UICollectionViewDelegateFlowLayout {
 // MARK: - CharactersListPresenterDelegate
 extension CharactersListViewController: CharactersListPresenterDelegate {
 
-    func presentCharacters(charactersList: [Character]) {
+    func presentCharacters() {
         DispatchQueue.main.async {
-            self.charactersList = charactersList
             self.collectionView.reloadData()
         }
     }
