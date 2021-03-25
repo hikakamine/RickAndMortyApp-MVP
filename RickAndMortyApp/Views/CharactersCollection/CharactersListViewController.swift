@@ -64,6 +64,7 @@ extension CharactersListViewController {
 
     private func setupPresenter() {
         presenter = CharactersListPresenter(networkService: RickAndMortyAPI(),
+                                            imagesLoader: ImagesService(),
                                             presenterDelegate: self)
     }
 }

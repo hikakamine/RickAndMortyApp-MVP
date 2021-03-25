@@ -13,14 +13,14 @@ struct LayoutConstants {
         get {
             switch UIDevice.current.userInterfaceIdiom {
             case .pad:
-                return itemsPerRowIfIpad
+                return itemsPerRowForIpad
             default:
-                return itemsPerRowIfIphone
+                return itemsPerRowForIphone
             }
         }
     }
 
-    static private var itemsPerRowIfIpad: CGFloat {
+    static private var itemsPerRowForIpad: CGFloat {
         get {
             switch UIDevice.current.orientation {
             case .portrait, .portraitUpsideDown:
@@ -31,5 +31,5 @@ struct LayoutConstants {
         }
     }
 
-    static private var itemsPerRowIfIphone: CGFloat = 2
+    static private var itemsPerRowForIphone: CGFloat = 2
 }

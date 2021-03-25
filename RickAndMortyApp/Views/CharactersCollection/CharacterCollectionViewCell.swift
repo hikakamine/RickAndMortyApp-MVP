@@ -28,6 +28,8 @@ class CharacterCollectionViewCell: UICollectionViewCell {
         return label
     }()
 
+    private var onReuse: () -> () = {}
+
     // MARK: View Life Cycle
 
     override func layoutSubviews() {
@@ -38,6 +40,8 @@ class CharacterCollectionViewCell: UICollectionViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
+        onReuse()
+        characterImageView.image = nil
     }
 }
 
@@ -90,6 +94,10 @@ extension CharacterCollectionViewCell {
 
 // MARK: - CharacterCollectionCellPresenterDelegate
 extension CharacterCollectionViewCell: CharacterCollectionCellDelegate {
+    var onCellReuse: () -> () {
+        get { onReuse }
+        set { onReuse = newValue }
+    }
 
     func setCharacterData(withData character: CharacterData) {
         characterStatusLabel.text = character.status

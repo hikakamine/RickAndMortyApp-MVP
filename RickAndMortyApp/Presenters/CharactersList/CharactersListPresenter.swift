@@ -5,12 +5,15 @@ class CharactersListPresenter {
     private var characters = [CharacterData]()
     private var currentFilter: CharactersFilter
     private var networkService: NetworkServiceProtocol
+    private var imagesLoader: ImagesLoader
     private weak var presenterDelegate: CharactersListPresenterDelegate?
 
     init(networkService: NetworkServiceProtocol,
+         imagesLoader: ImagesLoader,
          presenterDelegate: CharactersListPresenterDelegate?) {
         self.currentFilter = CharactersFilter()
         self.networkService = networkService
+        self.imagesLoader = imagesLoader
         self.presenterDelegate = presenterDelegate
     }
 }
@@ -30,7 +33,7 @@ extension CharactersListPresenter: CharactersListPresenterProtocol {
             case .failure(let error):
                 self?.presenterDelegate?.presentErrorMessage(message: error.message)
             case .success(let resultData):
-                self?.characters.append(contentsOf: resultData.results)
+                self?.characters = resultData.results
                 self?.presenterDelegate?.presentCharacters()
             }
         }
@@ -40,7 +43,14 @@ extension CharactersListPresenter: CharactersListPresenterProtocol {
                           characterAtRow index: Int) {
         let character = characters[index]
         delegate.setCharacterData(withData: character)
-        delegate.setCharacterImage(fromData: Data())
+        let token = imagesLoader.getImage(at: character.image) { data in
+            delegate.setCharacterImage(fromData: data)
+        }
+        delegate.onCellReuse = {
+            if let token = token {
+                self.imagesLoader.cancelLoad(forUUID: token)
+            }
+        }
     }
 }
 
@@ -53,7 +63,6 @@ extension CharactersListPresenter: CharactersFilterParentDelegate {
     func reloadList(withNewFilter newFilter: CharactersFilter) {
         if currentFilter != newFilter {
             currentFilter = newFilter
-            characters.removeAll()
             downloadCharacters()
         }
     }
