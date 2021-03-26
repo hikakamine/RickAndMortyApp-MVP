@@ -10,9 +10,9 @@ class CharactersListViewController: UIViewController {
 
     private var itemsPerRow: CGFloat { get { LayoutConstants.itemsPerRow } }
 
-    private var collectionView: UICollectionView!
-
     private var presenter: CharactersListPresenterProtocol!
+
+    private var collectionView: UICollectionView!
 
     // MARK: View Life Cycle
 
@@ -22,11 +22,6 @@ class CharactersListViewController: UIViewController {
         setupFilterButton()
         setupCollectionView()
         setupPresenter()
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        presenter.downloadCharacters()
     }
 
     override func viewWillTransition(to size: CGSize,
@@ -63,9 +58,9 @@ extension CharactersListViewController {
     }
 
     private func setupPresenter() {
-        presenter = CharactersListPresenter(networkService: RickAndMortyAPI(),
-                                            imagesLoader: ImagesService(),
+        presenter = CharactersListPresenter(network: NetworkService(),
                                             presenterDelegate: self)
+        presenter.searchCharacters()
     }
 }
 
@@ -107,6 +102,13 @@ extension CharactersListViewController: UICollectionViewDelegate {
                         didSelectItemAt indexPath: IndexPath) {
         print(indexPath)
     }
+
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        if offsetY > (scrollView.contentSize.height - scrollView.bounds.height - 60) {
+            presenter.loadNextCharactersPage()
+        }
+    }
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
@@ -138,8 +140,11 @@ extension CharactersListViewController: UICollectionViewDelegateFlowLayout {
 // MARK: - CharactersListPresenterDelegate
 extension CharactersListViewController: CharactersListPresenterDelegate {
 
-    func presentCharacters() {
+    func presentCharacters(isNewSearch newSearch: Bool) {
         DispatchQueue.main.async {
+            if newSearch {
+                self.collectionView.resetScrollPosition()
+            }
             self.collectionView.reloadData()
         }
     }

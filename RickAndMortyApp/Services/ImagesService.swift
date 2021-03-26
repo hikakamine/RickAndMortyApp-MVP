@@ -11,6 +11,12 @@ class ImagesService: ImagesLoader {
     private var imageCache = [URL: Data]()
     private var requests = [UUID: URLSessionTask]()
 
+    private let network: NetworkProtocol
+
+    init(network: NetworkProtocol) {
+        self.network = network
+    }
+
     func getImage(at location: String,
                   completionHandler: @escaping (Data) -> Void) -> UUID? {
         guard let url = URL(string: location) else {
@@ -23,24 +29,17 @@ class ImagesService: ImagesLoader {
         }
 
         let uuid = UUID()
-        let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
+        let task = network.donwloadData(fromURL: url) { result in
+            defer { self.requests.removeValue(forKey: uuid) }
 
-            defer {
-                self.requests.removeValue(forKey: uuid)
-            }
-
-            if let data = data {
+            switch result {
+            case .failure(let error):
+                print(error)
+            case .success(let data):
                 self.imageCache[url] = data
                 completionHandler(data)
-                return
-            }
-
-            if let error = error, (error as NSError).code != NSURLErrorCancelled {
-                print(error)
-                return
             }
         }
-        task.resume()
 
         requests[uuid] = task
         return uuid

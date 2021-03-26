@@ -4,7 +4,7 @@ import XCTest
 // MARK: - Test setup
 class CharactersCollectionPresenterTest: XCTestCase {
 
-    var networkMock: NetworkServiceProtocol!
+    var networkMock: NetworkProtocol!
     var subject: CharactersListPresenter!
     var resultDelegate: CharactersListPresenterDelegate!
 
