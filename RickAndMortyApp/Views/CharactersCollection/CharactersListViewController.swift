@@ -6,9 +6,7 @@ class CharactersListViewController: UIViewController {
 
     private let reuseIdentifier = "CharacterViewCell"
 
-    private let sectionInsets = LayoutConstants.sectionInsets
-
-    private var itemsPerRow: CGFloat { get { LayoutConstants.itemsPerRow } }
+    private let layoutConstants = LayoutConstants.CharactersCollection()
 
     private var presenter: CharactersListPresenterProtocol!
 
@@ -71,7 +69,6 @@ extension CharactersListViewController {
         let characterFilterViewController = CharacterFilterViewController()
         characterFilterViewController.parentPresenter = presenter as! CharactersListPresenter
         let navigationCharacterFilterController = UINavigationController(rootViewController: characterFilterViewController)
-        navigationCharacterFilterController.modalPresentationStyle = .fullScreen
         present(navigationCharacterFilterController,
                 animated: true)
     }
@@ -117,23 +114,19 @@ extension CharactersListViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let paddingSpace = sectionInsets.left * (itemsPerRow + 2)
-        let availableWidth = view.frame.width - paddingSpace
-        let widthPerItem = (availableWidth / itemsPerRow) + 8
-        return CGSize(width: widthPerItem,
-                      height: widthPerItem + 32)
+        return layoutConstants.collectionCellViewSize(widthSize: view.frame.width)
     }
 
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         insetForSectionAt section: Int) -> UIEdgeInsets {
-        return sectionInsets
+        return layoutConstants.sectionInsets
     }
 
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return sectionInsets.left
+        return layoutConstants.sectionInsets.left
     }
 }
 

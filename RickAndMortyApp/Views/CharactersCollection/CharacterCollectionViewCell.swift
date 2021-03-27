@@ -2,13 +2,15 @@ import UIKit
 
 class CharacterCollectionViewCell: UICollectionViewCell {
 
+    private let layoutConstants = LayoutConstants.CharactersCollection()
+
     // MARK: Properties
 
     lazy var characterImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = LayoutConstants.cornerRadius
+        imageView.layer.cornerRadius = layoutConstants.cornerRadius
         imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         imageView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(imageView)
@@ -16,7 +18,7 @@ class CharacterCollectionViewCell: UICollectionViewCell {
     }()
 
     lazy var characterStatusLabel: UILabel = {
-        let label = UILabel.newLabel(fontSize: 8,
+        let label = UILabel.newLabel(fontSize: 12,
                                      fontColor: .subtitleColor)
         addSubview(label)
         return label
@@ -69,7 +71,7 @@ extension CharacterCollectionViewCell {
                                                           constant: 8),
             characterStatusLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor,
                                                            constant: -8),
-            characterStatusLabel.heightAnchor.constraint(equalToConstant: 8)])
+            characterStatusLabel.heightAnchor.constraint(equalToConstant: 12)])
     }
 
     private func setupCharacterNameConstraints() {
@@ -88,7 +90,7 @@ extension CharacterCollectionViewCell {
     private func setupLayer() {
         layer.borderColor = UIColor.gray.cgColor
         layer.borderWidth = 1.0
-        layer.cornerRadius = LayoutConstants.cornerRadius
+        layer.cornerRadius = layoutConstants.cornerRadius
     }
 }
 
@@ -105,8 +107,6 @@ extension CharacterCollectionViewCell: CharacterCollectionCellDelegate {
     }
 
     func setCharacterImage(fromData data: Data) {
-        DispatchQueue.main.async {
-            self.characterImageView.image = UIImage(data: data)
-        }
+        self.characterImageView.image = UIImage(data: data)
     }
 }

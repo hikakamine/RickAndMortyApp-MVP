@@ -18,7 +18,7 @@ class CharactersListPresenter {
     }
 }
 
-// MARK: CharactersListPresenterProtocol
+// MARK: - CharactersListPresenterProtocol
 extension CharactersListPresenter: CharactersListPresenterProtocol {
     var charactersCount: Int {
         get { characters.count }
@@ -45,16 +45,10 @@ extension CharactersListPresenter: CharactersListPresenterProtocol {
     func setCharacterCell(withCellDelegate delegate: CharacterCollectionCellDelegate,
                           characterAtRow index: Int) {
         let character = characters[index]
-        delegate.setCharacterData(withData: character)
-
-        let token = imagesLoader.getImage(at: character.image) { data in
-            delegate.setCharacterImage(fromData: data)
-        }
-        delegate.onCellReuse = {
-            if let token = token {
-                self.imagesLoader.cancelLoad(forUUID: token)
-            }
-        }
+        setCharacterDetails(withCellDelegate: delegate,
+                            fromCharacterData: character)
+        setCharacterImage(withCellDelegate: delegate,
+                          fromImageURL: character.image)
     }
 }
 
@@ -88,6 +82,32 @@ extension CharactersListPresenter {
             nextPage = nextURL
         } else {
             nextPage = nil
+        }
+    }
+
+    private func setCharacterDetails(withCellDelegate delegate: CharacterCollectionCellDelegate,
+                                     fromCharacterData character: CharacterData) {
+        delegate.setCharacterData(withData: character)
+    }
+
+    private func setCharacterImage(withCellDelegate delegate: CharacterCollectionCellDelegate,
+                                   fromImageURL imageURL: String) {
+        let imageOrTask = imagesLoader.getImage(fromLocation: imageURL) { imageResult in
+            if case .image(let data) = imageResult {
+                DispatchQueue.main.async {
+                    delegate.setCharacterImage(fromData: data)
+                }
+            }
+        }
+        switch imageOrTask {
+        case .image(let data):
+            delegate.setCharacterImage(fromData: data)
+        case .task(let taskUUID):
+            delegate.onCellReuse = {
+                self.imagesLoader.cancelLoad(forUUID: taskUUID)
+            }
+        case .error(let error):
+            print(error)
         }
     }
 }

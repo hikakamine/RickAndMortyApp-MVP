@@ -27,9 +27,9 @@ extension NetworkRequestError {
         let code = (error as NSError).code
         switch code {
         case NSURLErrorCancelled:
-            self = NetworkRequestError.api(code, error.localizedDescription)
-        default:
             self = NetworkRequestError.cancelled
+        default:
+            self = NetworkRequestError.api(code, error.localizedDescription)
         }
     }
 }

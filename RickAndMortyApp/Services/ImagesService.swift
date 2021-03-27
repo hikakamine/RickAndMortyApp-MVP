@@ -1,9 +1,36 @@
 import Foundation
 
+enum ImageOrTask {
+    case image(Data)
+    case task(UUID)
+    case error(String)
+}
+
+enum Image {
+    case image(Data)
+    case cancelled
+    case error(String)
+}
+
+extension Image {
+    init(_ error: NetworkRequestError) {
+        switch error {
+        case .cancelled:
+            self = .cancelled
+        default:
+            self = .error(error.localizedDescription)
+        }
+    }
+
+    init(_ data: Data) {
+        self = .image(data)
+    }
+}
+
 protocol ImagesLoader {
 
-    func getImage(at location: String,
-                  completionHandler: @escaping (Data) -> Void) -> UUID?
+    func getImage(fromLocation location: String,
+                  completionHandler: @escaping (Image) -> Void) -> ImageOrTask
     func cancelLoad(forUUID uuid: UUID)
 }
 
@@ -17,15 +44,14 @@ class ImagesService: ImagesLoader {
         self.network = network
     }
 
-    func getImage(at location: String,
-                  completionHandler: @escaping (Data) -> Void) -> UUID? {
+    func getImage(fromLocation location: String,
+                  completionHandler: @escaping (Image) -> Void) -> ImageOrTask {
         guard let url = URL(string: location) else {
-            return nil
+            return .error("URL[\(location)] not valid")
         }
 
         if let image = imageCache[url] {
-            completionHandler(image)
-            return nil
+            return .image(image)
         }
 
         let uuid = UUID()
@@ -34,15 +60,15 @@ class ImagesService: ImagesLoader {
 
             switch result {
             case .failure(let error):
-                print(error)
+                completionHandler(Image(error))
             case .success(let data):
                 self.imageCache[url] = data
-                completionHandler(data)
+                completionHandler(Image(data))
             }
         }
 
         requests[uuid] = task
-        return uuid
+        return .task(uuid)
     }
 
     func cancelLoad(forUUID uuid: UUID) {
