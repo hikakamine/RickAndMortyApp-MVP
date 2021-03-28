@@ -28,6 +28,10 @@ extension CharactersListPresenter: CharactersListPresenterProtocol {
         get { currentTask == nil }
     }
 
+    var hasNextPage: Bool {
+        get { nextPage != nil }
+    }
+
     func searchCharacters() {
         guard isNetworkIdle else { return }
         guard let url = currentFilter.url else { return }

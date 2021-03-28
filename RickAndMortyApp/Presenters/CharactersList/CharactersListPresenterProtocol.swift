@@ -3,6 +3,7 @@ import Foundation
 protocol CharactersListPresenterProtocol: AnyObject {
     var charactersCount: Int { get }
     var isNetworkIdle: Bool { get }
+    var hasNextPage: Bool { get }
 
     func searchCharacters()
     func loadNextCharactersPage()

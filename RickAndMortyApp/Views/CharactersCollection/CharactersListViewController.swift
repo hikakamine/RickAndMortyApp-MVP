@@ -4,13 +4,13 @@ class CharactersListViewController: UIViewController {
 
     // MARK: Properties
 
-    private let reuseIdentifier = "CharacterViewCell"
-
     private let layoutConstants = LayoutConstants.CharactersCollection()
 
     private var presenter: CharactersListPresenterProtocol!
 
     private var collectionView: UICollectionView!
+
+    private var loadingFooterView: LoadingReusableView?
 
     // MARK: View Life Cycle
 
@@ -51,7 +51,10 @@ extension CharactersListViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(CharacterCollectionViewCell.self,
-                                forCellWithReuseIdentifier: reuseIdentifier)
+                                forCellWithReuseIdentifier: CharacterCollectionViewCell.reuseIdentifier)
+        collectionView.register(LoadingReusableView.self,
+                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
+                                withReuseIdentifier: LoadingReusableView.reuseIdentifier)
         view.addSubview(collectionView)
     }
 
@@ -84,11 +87,24 @@ extension CharactersListViewController: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier,
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CharacterCollectionViewCell.reuseIdentifier,
                                                       for: indexPath) as! CharacterCollectionViewCell
         presenter.setCharacterCell(withCellDelegate: cell,
                                    characterAtRow: indexPath.row)
         return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView,
+                        viewForSupplementaryElementOfKind kind: String,
+                        at indexPath: IndexPath) -> UICollectionReusableView {
+        if kind == UICollectionView.elementKindSectionFooter {
+            let footerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind,
+                                                                             withReuseIdentifier: LoadingReusableView.reuseIdentifier,
+                                                                             for: indexPath) as! LoadingReusableView
+            loadingFooterView = footerView
+            return footerView
+        }
+        return UICollectionReusableView()
     }
 }
 
@@ -100,10 +116,29 @@ extension CharactersListViewController: UICollectionViewDelegate {
         print(indexPath)
     }
 
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        let offsetY = scrollView.contentOffset.y
-        if offsetY > (scrollView.contentSize.height - scrollView.bounds.height - 60) {
+    func collectionView(_ collectionView: UICollectionView,
+                        willDisplay cell: UICollectionViewCell,
+                        forItemAt indexPath: IndexPath) {
+        if indexPath.row == presenter.charactersCount - layoutConstants.itemsPerRow && presenter.isNetworkIdle {
             presenter.loadNextCharactersPage()
+        }
+    }
+
+    func collectionView(_ collectionView: UICollectionView,
+                        willDisplaySupplementaryView view: UICollectionReusableView,
+                        forElementKind elementKind: String,
+                        at indexPath: IndexPath) {
+        if elementKind == UICollectionView.elementKindSectionFooter {
+            loadingFooterView?.startAnimating()
+        }
+    }
+
+    func collectionView(_ collectionView: UICollectionView,
+                        didEndDisplayingSupplementaryView view: UICollectionReusableView,
+                        forElementOfKind elementKind: String,
+                        at indexPath: IndexPath) {
+        if elementKind == UICollectionView.elementKindSectionFooter {
+            loadingFooterView?.stopAnimating()
         }
     }
 }
@@ -114,7 +149,7 @@ extension CharactersListViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return layoutConstants.collectionCellViewSize(widthSize: view.frame.width)
+        return layoutConstants.collectionCellViewSize(widthSize: collectionView.frame.width)
     }
 
     func collectionView(_ collectionView: UICollectionView,
@@ -127,6 +162,16 @@ extension CharactersListViewController: UICollectionViewDelegateFlowLayout {
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return layoutConstants.sectionInsets.left
+    }
+
+
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        referenceSizeForFooterInSection section: Int) -> CGSize {
+        if presenter.hasNextPage {
+            return layoutConstants.loadingViewSize(widthSize: collectionView.frame.width)
+        }
+        return .zero
     }
 }
 

@@ -22,8 +22,6 @@ extension ApiRequestError {
 
 protocol ApiProtocol {
 
-//    func downloadCharacters(from urlString: String,
-//                            completionHandler: @escaping CharacterResult) -> URLSessionTask?
     func downloadCharacters(fromURL url: URL,
                             completionHandler: @escaping CharacterResult) -> URLSessionTask?
 }
@@ -37,20 +35,6 @@ class RickAndMortyApi {
 }
 
 extension RickAndMortyApi: ApiProtocol {
-
-//    func downloadCharacters(from urlString: String,
-//                            completionHandler: @escaping CharacterResult) -> URLSessionTask? {
-//        guard let url = URL(string: urlString) else {
-//            completionHandler(.failure(ApiRequestError.invalidUrl))
-//            return nil
-//        }
-//
-//        let task = downloadCharacters(fromURL: url) { result in
-//            completionHandler(result)
-//            return
-//        }
-//        return task
-//    }
 
     func downloadCharacters(fromURL url: URL,
                             completionHandler: @escaping CharacterResult) -> URLSessionTask? {

@@ -4,6 +4,8 @@ class CharacterCollectionViewCell: UICollectionViewCell {
 
     private let layoutConstants = LayoutConstants.CharactersCollection()
 
+    static let reuseIdentifier = "CharacterViewCell"
+
     // MARK: Properties
 
     lazy var characterImageView: UIImageView = {
