@@ -10,7 +10,7 @@ struct LayoutConstants {
                                          bottom: 16,
                                          right: 16)
 
-        var itemsPerRow: Int {
+        private var itemsPerRow: CGFloat {
             get {
                 switch UIDevice.current.userInterfaceIdiom {
                 case .pad:
@@ -21,7 +21,7 @@ struct LayoutConstants {
             }
         }
 
-        private var itemsPerRowForIpad: Int {
+        private var itemsPerRowForIpad: CGFloat {
             get {
                 switch UIApplication.shared.statusBarOrientation {
                 case .portrait, .portraitUpsideDown:
@@ -32,12 +32,12 @@ struct LayoutConstants {
             }
         }
 
-        private var itemsPerRowForIphone: Int = 2
+        private var itemsPerRowForIphone: CGFloat = 2
 
         func collectionCellViewSize(widthSize width: CGFloat) -> CGSize {
-            let paddingSpace = sectionInsets.left * CGFloat(itemsPerRow + 2)
+            let paddingSpace = sectionInsets.left * (itemsPerRow + 2)
             let availableWidth = width - paddingSpace
-            let widthPerItem = (availableWidth / CGFloat(itemsPerRow)) + 8
+            let widthPerItem = (availableWidth / itemsPerRow) + 8
             let size =  CGSize(width: widthPerItem,
                                height: widthPerItem + 36)
             return size

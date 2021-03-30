@@ -35,13 +35,15 @@ protocol ImagesLoader {
 }
 
 class ImagesService: ImagesLoader {
-    private var imageCache = [URL: Data]()
-    private var requests = [UUID: URLSessionTask]()
-
     private let network: NetworkProtocol
+    private let imageCache: Cache<URL, Data>
+    private let requests: ThreadSafeDictionary<UUID, URLSessionTask>
 
     init(network: NetworkProtocol) {
         self.network = network
+        imageCache = Cache()
+        imageCache.name = "ImageCache"
+        requests = ThreadSafeDictionary()
     }
 
     func getImage(fromLocation location: String,
@@ -50,7 +52,7 @@ class ImagesService: ImagesLoader {
             return .error("URL[\(location)] not valid")
         }
 
-        if let image = imageCache[url] {
+        if let image = imageCache.getValue(forKey: url) {
             return .image(image)
         }
 
@@ -62,17 +64,19 @@ class ImagesService: ImagesLoader {
             case .failure(let error):
                 completionHandler(Image(error))
             case .success(let data):
-                self.imageCache[url] = data
+                self.imageCache.insert(data,
+                                       forKey: url)
                 completionHandler(Image(data))
             }
         }
 
-        requests[uuid] = task
+        requests.insert(task,
+                        forKey: uuid)
         return .task(uuid)
     }
 
     func cancelLoad(forUUID uuid: UUID) {
-        requests[uuid]?.cancel()
+        requests.getValue(forKey: uuid)?.cancel()
         requests.removeValue(forKey: uuid)
     }
 }

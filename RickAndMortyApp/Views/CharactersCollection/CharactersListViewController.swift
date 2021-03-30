@@ -119,7 +119,7 @@ extension CharactersListViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView,
                         willDisplay cell: UICollectionViewCell,
                         forItemAt indexPath: IndexPath) {
-        if indexPath.row == presenter.charactersCount - layoutConstants.itemsPerRow && presenter.isNetworkIdle {
+        if indexPath.row == presenter.charactersCount - 1 && presenter.isNetworkIdle {
             presenter.loadNextCharactersPage()
         }
     }
