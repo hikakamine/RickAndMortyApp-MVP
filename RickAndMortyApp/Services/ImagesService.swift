@@ -1,40 +1,14 @@
 import Foundation
 
-enum ImageOrTask {
-    case image(Data)
-    case task(UUID)
-    case error(String)
-}
-
-enum Image {
-    case image(Data)
-    case cancelled
-    case error(String)
-}
-
-extension Image {
-    init(_ error: NetworkRequestError) {
-        switch error {
-        case .cancelled:
-            self = .cancelled
-        default:
-            self = .error(error.localizedDescription)
-        }
-    }
-
-    init(_ data: Data) {
-        self = .image(data)
-    }
-}
-
 protocol ImagesLoader {
 
     func getImage(fromLocation location: String,
-                  completionHandler: @escaping (Image) -> Void) -> ImageOrTask
+                  completionHandler: @escaping (ImageRequest) -> Void) -> ImageOrTask
     func cancelLoad(forUUID uuid: UUID)
 }
 
-class ImagesService: ImagesLoader {
+// MARK: - Images Service
+class ImagesService {
     private let network: NetworkProtocol
     private let imageCache: Cache<URL, Data>
     private let requests: ThreadSafeDictionary<UUID, URLSessionTask>
@@ -45,9 +19,13 @@ class ImagesService: ImagesLoader {
         imageCache.name = "ImageCache"
         requests = ThreadSafeDictionary()
     }
+}
+
+// MARK: - ImagesLoader Protocol
+extension ImagesService: ImagesLoader {
 
     func getImage(fromLocation location: String,
-                  completionHandler: @escaping (Image) -> Void) -> ImageOrTask {
+                  completionHandler: @escaping (ImageRequest) -> Void) -> ImageOrTask {
         guard let url = URL(string: location) else {
             return .error("URL[\(location)] not valid")
         }
@@ -57,16 +35,16 @@ class ImagesService: ImagesLoader {
         }
 
         let uuid = UUID()
-        let task = network.donwloadData(fromURL: url) { result in
+        let task = network.donwloadData(fromURL: url) { [unowned self] result in
             defer { self.requests.removeValue(forKey: uuid) }
 
             switch result {
             case .failure(let error):
-                completionHandler(Image(error))
+                completionHandler(ImageRequest(error))
             case .success(let data):
                 self.imageCache.insert(data,
                                        forKey: url)
-                completionHandler(Image(data))
+                completionHandler(ImageRequest(data))
             }
         }
 

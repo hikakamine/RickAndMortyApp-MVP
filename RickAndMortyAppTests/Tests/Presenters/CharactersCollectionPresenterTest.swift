@@ -9,12 +9,15 @@ class CharactersCollectionPresenterTest: XCTestCase {
     var resultDelegate: CharactersListPresenterDelegate!
 
     override func setUp() {
-//        subject = CharactersListPresenter(networkService: networkMock,
-//                                          presenterDelegate: resultDelegate)
+        super.setUp()
+
+        let config = URLSessionConfiguration.default
+        config.protocolClasses = [URLProtocolStubs.self]
+        networkMock = NetworkService(session: URLSession.init(configuration: config))
     }
 
-    override func tearDown() {
-
+    func givenNormalConditions() {
+        
     }
 }
 
@@ -22,6 +25,6 @@ class CharactersCollectionPresenterTest: XCTestCase {
 extension CharactersCollectionPresenterTest {
 
     func test_Given_When_Then() {
-
+        givenNormalConditions()
     }
 }

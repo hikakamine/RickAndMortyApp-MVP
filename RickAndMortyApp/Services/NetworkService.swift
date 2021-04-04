@@ -1,50 +1,29 @@
 import Foundation
 
-typealias DataRequest = (Result<Data, NetworkRequestError>) -> Void
+typealias DataRequest = Result<Data, NetworkRequestError>
 
 protocol NetworkProtocol {
 
     func donwloadData(fromURL url: URL,
-                      completionHandler: @escaping DataRequest) -> URLSessionTask
-}
-
-enum NetworkRequestError: Error {
-    case api(_ status: Int,
-             _ description: String)
-    case cancelled
-    case unknown(Data?, URLResponse?)
-}
-
-extension NetworkRequestError {
-    init(_ data: Data?,
-         _ response: URLResponse?,
-         _ error: Error?) {
-        guard let error = error else {
-            self = NetworkRequestError.unknown(data, response)
-            return
-        }
-
-        let code = (error as NSError).code
-        switch code {
-        case NSURLErrorCancelled:
-            self = NetworkRequestError.cancelled
-        default:
-            self = NetworkRequestError.api(code, error.localizedDescription)
-        }
-    }
+                      completionHandler: @escaping (DataRequest) -> Void) -> URLSessionTask
 }
 
 class NetworkService: NetworkProtocol {
+    let session: URLSession
+
+    init(session: URLSession = URLSession.shared) {
+        self.session = session
+    }
 
     func donwloadData(fromURL url: URL,
-                      completionHandler: @escaping DataRequest) -> URLSessionTask {
-        let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
-            guard let responseData = data else {
-                completionHandler(.failure(NetworkRequestError(data, response, error)))
+                      completionHandler: @escaping (DataRequest) -> Void) -> URLSessionTask {
+        let task = session.dataTask(with: url) { (data, response, error) in
+            if let networkError = NetworkRequestError(data, response, error) {
+                completionHandler(.failure(networkError))
                 return
             }
 
-            completionHandler(.success(responseData))
+            completionHandler(.success(data!))
         }
         task.resume()
         return task

@@ -1,19 +1,21 @@
 import Foundation
 
 class CharactersListPresenter {
+    private let apiServices: ApiProtocol
+    private let imagesLoader: ImagesLoader
+
     private var characters = [CharacterData]()
     private var nextPage: URL?
     private var currentTask: URLSessionTask?
     private var currentFilter: CharactersFilter
-    private var apiServices: ApiProtocol
-    private var imagesLoader: ImagesLoader
+
     private weak var presenterDelegate: CharactersListPresenterDelegate?
 
     init(network: NetworkProtocol,
          presenterDelegate: CharactersListPresenterDelegate?) {
-        self.currentFilter = CharactersFilter()
         self.apiServices = RickAndMortyApi(network: network)
         self.imagesLoader = ImagesService(network: network)
+        self.currentFilter = CharactersFilter()
         self.presenterDelegate = presenterDelegate
     }
 }

@@ -1,29 +1,11 @@
 import Foundation
 
-typealias CharacterResult = (Result<ResultData<CharacterData>, ApiRequestError>) -> Void
-
-enum ApiRequestError: Error {
-    case invalidUrl
-    case cancelled
-    case decodeError(String)
-    case unknown(String)
-}
-
-extension ApiRequestError {
-    init(_ networkError: NetworkRequestError) {
-        switch networkError {
-        case .cancelled:
-            self = .cancelled
-        default:
-            self = .unknown("\(networkError)")
-        }
-    }
-}
+typealias CharacterResult = Result<ResultData<CharacterData>, ApiRequestError>
 
 protocol ApiProtocol {
 
     func downloadCharacters(fromURL url: URL,
-                            completionHandler: @escaping CharacterResult) -> URLSessionTask?
+                            completionHandler: @escaping (CharacterResult) -> Void) -> URLSessionTask?
 }
 
 class RickAndMortyApi {
@@ -37,7 +19,7 @@ class RickAndMortyApi {
 extension RickAndMortyApi: ApiProtocol {
 
     func downloadCharacters(fromURL url: URL,
-                            completionHandler: @escaping CharacterResult) -> URLSessionTask? {
+                            completionHandler: @escaping (CharacterResult) -> Void) -> URLSessionTask? {
         let task = network.donwloadData(fromURL: url) { [unowned self] result in
             switch result {
             case .failure(let error):
@@ -55,7 +37,7 @@ extension RickAndMortyApi: ApiProtocol {
         do {
             return .success(try JSONDecoder().decode(type, from: data))
         } catch {
-            return .failure(ApiRequestError.decodeError("Data parsing to type[\(type)] error"))
+            return .failure(.parsing("Data parsing to type [\(type)] error"))
         }
     }
 }
