@@ -23,16 +23,23 @@ struct LayoutConstants {
 
         private var itemsPerRowForIpad: CGFloat {
             get {
-                switch UIApplication.shared.statusBarOrientation {
-                case .portrait, .portraitUpsideDown:
+                if isInterfaceOrientationPortrait {
                     return 4
-                default:
-                    return 5
                 }
+                return 5
             }
         }
 
         private var itemsPerRowForIphone: CGFloat = 2
+
+        private var isInterfaceOrientationPortrait: Bool {
+            if #available(iOS 13.0, *) {
+                return UIApplication.shared.windows
+                    .first?.windowScene?.interfaceOrientation.isPortrait ?? false
+            } else {
+                return UIApplication.shared.statusBarOrientation.isPortrait
+            }
+        }
 
         func collectionCellViewSize(widthSize width: CGFloat) -> CGSize {
             let paddingSpace = sectionInsets.left * (itemsPerRow + 2)
